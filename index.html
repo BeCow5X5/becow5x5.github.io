@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sungjae Choi</title>
+<meta name="description" content="Sungjae Choi, M.S. student in Electrical Engineering at KAIST. 3D computer vision, Gaussian splatting, geometry foundation models.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐄</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22301f;
+    --muted: #5f6b59;
+    --link: #2d5a27;
+    --rule: rgba(34,48,31,.12);
+    --sky-top: #cfe6f7;
+    --sky-bot: #eef6fb;
+    --hill-far: #a9cf86;
+    --hill-mid: #86b962;
+    --hill-near: #5f9d43;
+    --grass: #4f8f3a;
+    --card: rgba(255,255,255,.78);
+  }
+  * { box-sizing: border-box; }
+  html { font-size: clamp(16px, 0.55vw + 13px, 21px); scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    color: var(--ink);
+    line-height: 1.6;
+    background: var(--grass);
+    min-height: 100vh;
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+  /* ---------- scenery ---------- */
+  .scene {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    background: linear-gradient(var(--sky-top), var(--sky-bot) 45%, var(--grass) 45.01%);
+  }
+  .scene svg { position: absolute; left: 0; width: 100%; }
+  .sun { top: 6vh; right: 8vw; width: 90px; height: 90px; border-radius: 50%;
+         background: #fff3b0; box-shadow: 0 0 60px 20px rgba(255,236,150,.55); position: absolute; }
+  .cloud { position: absolute; top: 9vh; width: 160px; height: 46px; background: #fff; border-radius: 40px; opacity: .9;
+           animation: drift 90s linear infinite; }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+  .cloud::before { width: 70px; height: 70px; left: 24px; top: -34px; }
+  .cloud::after  { width: 50px; height: 50px; left: 84px; top: -22px; }
+  .cloud.c2 { top: 17vh; transform: scale(.65); animation-duration: 130s; animation-delay: -60s; }
+  @keyframes drift { from { left: -220px; } to { left: 110vw; } }
+
+  .hills { bottom: 0; height: 60vh; }
+  .hills.far  { z-index: 1; }
+  .hills.mid  { z-index: 2; }
+  .hills.near { z-index: 3; }
+
+  /* ---------- cows ---------- */
+  .herd { position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; z-index: 4; }
+  .cow { position: absolute; bottom: var(--y, 4vh); width: var(--w, 110px); height: auto;
+         animation: walk var(--t, 60s) linear infinite; animation-delay: var(--d, 0s); }
+  .cow .body { animation: bob 1.1s ease-in-out infinite; transform-origin: 50% 100%; }
+  .cow .tail { transform-origin: 6px 30px; animation: swish 3s ease-in-out infinite; }
+  .cow.rev { animation-name: walkrev; }
+  .cow.rev svg { transform: scaleX(-1); }
+  @keyframes walk    { from { left: -160px; } to { left: 105vw; } }
+  @keyframes walkrev { from { left: 105vw; } to { left: -160px; } }
+  @keyframes bob   { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+  @keyframes swish { 0%,100% { transform: rotate(-12deg) } 50% { transform: rotate(14deg) } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cloud, .cow, .cow .body, .cow .tail { animation: none; }
+    .cow { left: var(--sx, 20vw); }
+    .cow.rev { left: var(--sx, 60vw); }
+  }
+
+  /* ---------- content ---------- */
+  main { position: relative; z-index: 10; width: min(1100px, 94vw); margin: 0 auto; padding: 48px 0 40vh; }
+  .card {
+    background: var(--card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.7); border-radius: 22px; padding: clamp(28px, 4vw, 56px) clamp(22px, 5vw, 64px);
+    box-shadow: 0 20px 50px rgba(34,48,31,.12);
+  }
+  header { display: flex; gap: clamp(24px, 4vw, 48px); align-items: flex-start; margin-bottom: 8px; }
+  header img { width: clamp(150px, 16vw, 210px); height: clamp(150px, 16vw, 210px); object-fit: cover; border-radius: 50%; flex-shrink: 0;
+               background: #e8efe4; border: 4px solid #fff; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+  h1 { font-family: "Fraunces", Georgia, serif; font-size: clamp(2.2rem, 3.2vw, 3rem); font-weight: 600; margin: 0 0 2px; letter-spacing: -0.015em; line-height: 1.1; }
+  .role { color: var(--muted); margin: 0 0 16px; }
+  .links { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 14px; }
+  .links a { padding: 7px 16px; border: 1px solid var(--rule); border-radius: 999px; font-size: .92rem; background: rgba(255,255,255,.6); }
+  .links a:hover { background: #fff; text-decoration: none; border-color: var(--link); }
+
+  h2 { font-family: "Fraunces", Georgia, serif; font-size: 1.5rem; font-weight: 600; margin: 44px 0 12px; }
+  p { margin: 0 0 12px; }
+
+  .pub { display: flex; gap: clamp(20px, 3vw, 36px); padding: 22px 0; border-top: 1px solid var(--rule); }
+  .pub img { width: clamp(150px, 18vw, 220px); height: auto; aspect-ratio: 3/2; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e8efe4; }
+  .pub .title { font-weight: 500; font-size: 1.08rem; margin: 0 0 4px; }
+  .pub .authors { margin: 0 0 2px; }
+  .pub .venue { color: var(--muted); margin: 0 0 6px; font-size: .95rem; }
+  .pub .plinks { font-size: .92rem; }
+  .pub .plinks a + a::before { content: "·"; color: var(--muted); margin: 0 8px; }
+  .me { font-weight: 500; }
+  .edu p { margin-bottom: 10px; }
+  .edu .sub { color: var(--muted); font-size: .95rem; }
+  footer { margin-top: 36px; color: var(--muted); font-size: .85rem; }
+
+  @media (max-width: 640px) {
+    main { width: 100%; padding: 24px 14px 32vh; }
+    .card { padding: 26px 20px; border-radius: 14px; }
+    header { flex-direction: column; gap: 18px; }
+    .pub { flex-direction: column; gap: 12px; }
+    .pub img { width: 100%; height: auto; aspect-ratio: 3/2; }
+    main { padding-bottom: 32vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scene" aria-hidden="true">
+  <div class="sun"></div>
+  <div class="cloud"></div>
+  <div class="cloud c2"></div>
+
+  <svg class="hills far" viewBox="0 0 1440 400" preserveAspectRatio="none">
+    <path fill="var(--hill-far)" d="M0,260 C240,140 420,180 640,220 C860,260 1040,120 1440,200 L1440,400 L0,400 Z"/>
+  </svg>
+  <svg class="hills mid" viewBox="0 0 1440 400" preserveAspectRatio="none">
+    <path fill="var(--hill-mid)" d="M0,320 C300,240 520,300 760,270 C1000,240 1200,180 1440,290 L1440,400 L0,400 Z"/>
+  </svg>
+  <svg class="hills near" viewBox="0 0 1440 400" preserveAspectRatio="none">
+    <path fill="var(--hill-near)" d="M0,370 C260,330 560,360 820,335 C1080,310 1260,340 1440,325 L1440,400 L0,400 Z"/>
+  </svg>
+
+  <div class="herd">
+    <div class="cow" style="--w:120px; --y:6vh; --t:75s; --d:-10s; --sx:15vw">
+      <svg viewBox="0 0 120 80">
+        <g class="body">
+          <path class="tail" d="M6,30 q-8,14 2,26" fill="none" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+          <rect x="8" y="22" width="78" height="40" rx="16" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <path d="M22,26 q10,-4 16,6 q-2,10 -12,10 q-10,-2 -4,-16z" fill="#2b2b2b"/>
+          <path d="M56,40 q14,-8 24,2 q2,12 -10,14 q-14,-2 -14,-16z" fill="#2b2b2b"/>
+          <rect x="18" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="34" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="56" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="72" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <ellipse cx="44" cy="60" rx="9" ry="5" fill="#f4b7c4"/>
+          <rect x="78" y="14" width="34" height="30" rx="12" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="92" y="30" width="22" height="14" rx="6" fill="#f4b7c4" stroke="#2b2b2b" stroke-width="2"/>
+          <circle cx="98" cy="36" r="1.6" fill="#2b2b2b"/><circle cx="106" cy="36" r="1.6" fill="#2b2b2b"/>
+          <circle cx="92" cy="24" r="2.4" fill="#2b2b2b"/>
+          <path d="M82,14 q-6,-8 2,-8 q6,0 4,8z M108,14 q6,-8 -2,-8 q-6,0 -4,8z" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+          <ellipse cx="80" cy="18" rx="6" ry="3" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <div class="cow rev" style="--w:90px; --y:10vh; --t:95s; --d:-40s; --sx:65vw">
+      <svg viewBox="0 0 120 80">
+        <g class="body">
+          <path class="tail" d="M6,30 q-8,14 2,26" fill="none" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+          <rect x="8" y="22" width="78" height="40" rx="16" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <path d="M14,30 q14,-6 22,8 q-4,12 -18,8 q-8,-6 -4,-16z" fill="#2b2b2b"/>
+          <path d="M50,26 q12,-2 12,12 q-8,8 -18,0 q0,-10 6,-12z" fill="#2b2b2b"/>
+          <rect x="18" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="34" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="56" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="72" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <ellipse cx="44" cy="60" rx="9" ry="5" fill="#f4b7c4"/>
+          <rect x="78" y="14" width="34" height="30" rx="12" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="92" y="30" width="22" height="14" rx="6" fill="#f4b7c4" stroke="#2b2b2b" stroke-width="2"/>
+          <circle cx="98" cy="36" r="1.6" fill="#2b2b2b"/><circle cx="106" cy="36" r="1.6" fill="#2b2b2b"/>
+          <circle cx="92" cy="24" r="2.4" fill="#2b2b2b"/>
+          <path d="M82,14 q-6,-8 2,-8 q6,0 4,8z M108,14 q6,-8 -2,-8 q-6,0 -4,8z" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+          <ellipse cx="80" cy="18" rx="6" ry="3" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <div class="cow" style="--w:70px; --y:15vh; --t:120s; --d:-70s; --sx:40vw">
+      <svg viewBox="0 0 120 80">
+        <g class="body">
+          <path class="tail" d="M6,30 q-8,14 2,26" fill="none" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+          <rect x="8" y="22" width="78" height="40" rx="16" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <path d="M30,24 q16,0 18,12 q-6,10 -20,4 q-6,-8 2,-16z" fill="#2b2b2b"/>
+          <rect x="18" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="34" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="56" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="72" y="56" width="9" height="20" rx="3" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <ellipse cx="44" cy="60" rx="9" ry="5" fill="#f4b7c4"/>
+          <rect x="78" y="14" width="34" height="30" rx="12" fill="#fff" stroke="#2b2b2b" stroke-width="2.5"/>
+          <rect x="92" y="30" width="22" height="14" rx="6" fill="#f4b7c4" stroke="#2b2b2b" stroke-width="2"/>
+          <circle cx="98" cy="36" r="1.6" fill="#2b2b2b"/><circle cx="106" cy="36" r="1.6" fill="#2b2b2b"/>
+          <circle cx="92" cy="24" r="2.4" fill="#2b2b2b"/>
+          <path d="M82,14 q-6,-8 2,-8 q6,0 4,8z M108,14 q6,-8 -2,-8 q-6,0 -4,8z" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+          <ellipse cx="80" cy="18" rx="6" ry="3" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="card">
+    <header>
+      <img src="img/profile.jpg" alt="Sungjae Choi">
+      <div>
+        <h1>Sungjae Choi</h1>
+        <p class="role">M.S. student, Electrical Engineering, KAIST</p>
+        <p>I work on 3D computer vision in the <a href="https://siit.kaist.ac.kr">SIIT Lab</a>, advised by <a href="https://siit.kaist.ac.kr">Junmo Kim</a>. My research centers on 3D Gaussian splatting and multi-view geometry foundation models: segmenting radiance fields, reconstructing from few views, and pushing feed-forward geometry transformers to long sequences without training.</p>
+        <p>I did my undergraduate degree at KAIST as well, in Electrical Engineering with a minor in Cultural Technology, and spent time at Hyundai Motor Company working on autonomous driving perception.</p>
+        <div class="links">
+          <a href="mailto:EMAIL@kaist.ac.kr">Email</a>
+          <a href="cv.pdf">CV</a>
+          <a href="https://scholar.google.com/citations?user=SCHOLAR_ID">Google Scholar</a>
+          <a href="https://github.com/BeCow5X5">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <h2>Publications</h2>
+
+    <div class="pub">
+      <img src="img/pepeseg3d.png" alt="">
+      <div>
+        <p class="title">PePESeg3D: Perception Prior Enhances Multi-Scale Segmentation for 3D Gaussian Splatting</p>
+        <p class="authors"><span class="me">Sungjae Choi</span>, COAUTHORS, Junmo Kim</p>
+        <p class="venue">BMVC 2026 · earlier version at CVPR 2026 Workshop on 3D Multi-View (3DMV)</p>
+        <p class="plinks"><a href="#">Paper</a><a href="#">Code</a></p>
+      </div>
+    </div>
+
+    <div class="pub">
+      <img src="img/eab.png" alt="">
+      <div>
+        <p class="title">&lt;/think&gt; Doesn't Stop Reasoning: Analysis of Spurious CoT Termination</p>
+        <p class="authors">Seunghee Koh, <span class="me">Sungjae Choi</span>, Minchan Kwon, Sunghyun Baek, Junmo Kim</p>
+        <p class="venue">EMNLP 2026 (Main)</p>
+        <p class="plinks"><a href="https://arxiv.org/abs/2609.03633">arXiv</a><a href="https://github.com/Seunghee-Koh/Spurious-CoT-Termination">Code</a></p>
+      </div>
+    </div>
+
+    <div class="pub">
+      <img src="img/workiyo.png" alt="">
+      <div>
+        <p class="title">Worki-Yo: AR-Driven Stretching in Office System for Workplace Health</p>
+        <p class="authors">Kyunghwan Min, Heejeong Ko, <span class="me">Sungjae Choi</span>, Sangho Yoon</p>
+        <p class="venue">HCI Korea 2025</p>
+        <p class="plinks"><a href="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12131624">Paper</a></p>
+      </div>
+    </div>
+
+    <div class="pub">
+      <img src="img/ksc2024.png" alt="">
+      <div>
+        <p class="title">HMD-Based Trajectory Extraction for Seated Arm Stretching Based on Linear and Angular Trajectory Classification</p>
+        <p class="authors"><span class="me">Sungjae Choi</span>, COAUTHORS</p>
+        <p class="venue">Korea Software Congress (KSC) 2024</p>
+      </div>
+    </div>
+
+    <h2>Under review</h2>
+
+    <div class="pub">
+      <img src="img/vggt-bridge.png" alt="">
+      <div>
+        <p class="title">VGGT-Bridge: Beyond Sequential Pose Graphs via Coarse-Stride Skip Edges</p>
+        <p class="authors"><span class="me">Sungjae Choi</span>, COAUTHORS, Junmo Kim</p>
+        <p class="venue">Under review</p>
+        <p class="plinks"><a href="#">Paper</a></p>
+      </div>
+    </div>
+
+    <div class="pub">
+      <img src="img/vistags.png" alt="">
+      <div>
+        <p class="title">VistaGS: Multi-View Geometry Foundation Priors for View-Consistent Few-Shot 3D Gaussian Splatting</p>
+        <p class="authors"><span class="me">Sungjae Choi</span>, COAUTHORS, Junmo Kim</p>
+        <p class="venue">Under review</p>
+        <p class="plinks"><a href="#">Paper</a></p>
+      </div>
+    </div>
+
+    <h2>Patent</h2>
+    <div class="pub">
+      <div>
+        <p class="title">Stone Size Estimation Method</p>
+        <p class="authors">Gyuseop Song, Wonjun Lee, Jaechul Kim, Byungji Park, <span class="me">Sungjae Choi</span>, Dongho Lee, Hyunse Suh, Dongsu Kim</p>
+        <p class="venue">KR Patent Application 10-2023-0031846, 2023</p>
+      </div>
+    </div>
+
+    <h2>Education</h2>
+    <div class="edu">
+      <p><span class="me">KAIST</span>, M.S. in Electrical Engineering, 2024 – present<br><span class="sub">SIIT Lab, advised by Junmo Kim</span></p>
+      <p><span class="me">KAIST</span>, B.S. in Electrical Engineering, minor in Cultural Technology, 2020 – 2024</p>
+    </div>
+
+    <h2>Experience</h2>
+    <div class="edu">
+      <p><span class="me">Hyundai Motor Company</span>, Research Intern, Autonomous Driving Perception Development Team<br><span class="sub">Sep 2023 – Feb 2024</span></p>
+      <p><span class="me">ROEN Surgical</span>, Research Intern<br><span class="sub">Jul – Aug 2022</span></p>
+    </div>
+
+    <footer>Last updated September 2026.</footer>
+  </div>
+</main>
+</body>
+</html>
