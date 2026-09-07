@@ -54,6 +54,25 @@
   .prop { position: absolute; z-index: 3; height: auto; }
   .prop.barn { right: 3vw; bottom: 27vh; width: 150px; left: auto; }
   .prop.fence { left: 2vw; bottom: 20vh; width: 260px; }
+  .ufo { position: absolute; z-index: 6; width: 140px; height: 70px; will-change: transform; filter: drop-shadow(0 8px 14px rgba(0,0,0,.18)); }
+  .ufo .lights circle { animation: blink 1s linear infinite; }
+  .ufo .lights circle:nth-child(2) { animation-delay: .33s; } .ufo .lights circle:nth-child(3) { animation-delay: .66s; }
+  @keyframes blink { 0%,60% { fill: #ffe066 } 61%,100% { fill: #b56b6b } }
+  .ufo .disc { animation: hover 2.4s ease-in-out infinite; }
+  @keyframes hover { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
+  .beam { position: absolute; z-index: 5; transform-origin: 50% 0; opacity: 0; pointer-events: none;
+          background: linear-gradient(rgba(190,255,190,.85), rgba(160,255,200,.35) 60%, rgba(160,255,200,0));
+          clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); transition: opacity .4s; }
+  .beam.on { opacity: 1; animation: beamwobble .5s ease-in-out infinite; }
+  @keyframes beamwobble { 0%,100% { transform: scaleX(1) } 50% { transform: scaleX(1.06) } }
+  .storm { position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; transition: opacity 1.4s ease;
+           background: linear-gradient(rgba(44,36,74,.85) 0%, rgba(74,60,110,.6) 45%, rgba(40,60,50,.35) 100%); }
+  .storm.on { opacity: 1; }
+  .flash { position: absolute; inset: 0; z-index: 7; pointer-events: none; background: #fff; opacity: 0; }
+  .bolt { position: absolute; z-index: 7; width: 90px; height: auto; opacity: 0; pointer-events: none;
+          filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 22px #b9d7ff); }
+  .shake { animation: shake .35s linear; }
+  @keyframes shake { 0%,100% { transform: translate(0,0) } 20% { transform: translate(-3px,2px) } 40% { transform: translate(3px,-2px) } 60% { transform: translate(-2px,-2px) } 80% { transform: translate(2px,2px) } }
   .herd { position: absolute; left: 0; right: 0; bottom: 0; height: 36vh; z-index: 4; }
   .cow { position: absolute; bottom: var(--y, 4vh); width: var(--w, 110px); height: auto; animation: walk var(--t, 60s) linear infinite; animation-delay: var(--d, 0s); }
   .body { animation: bob 1.2s ease-in-out infinite; transform-origin: 50% 100%; }
@@ -110,7 +129,7 @@
 
   .pub { display: flex; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
   .pub:last-child { border-bottom: 0; }
-  .pub img { width: 160px; height: auto; aspect-ratio: 3/2; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e8efe4; }
+  .pub img { width: 170px; height: auto; aspect-ratio: 3/2; object-fit: contain; border-radius: 8px; flex-shrink: 0; background: #fff; border: 1px solid var(--rule); padding: 4px; }
   .pub .title { font-weight: 500; font-size: 1.02rem; margin: 0 0 4px; }
   .pub .authors { margin: 0 0 2px; }
   .pub .venue { color: var(--muted); margin: 0 0 6px; font-size: .93rem; }
@@ -289,7 +308,7 @@
     <p class="aff"><a href="https://siit.kaist.ac.kr">SIIT Lab</a><br>School of Electrical Engineering,<br>KAIST</p>
     <hr>
     <div class="contact">
-      <p><a href="mailto:EMAIL@kaist.ac.kr">sungjae579@kaist.ac.kr</a></p>
+      <p><a href="mailto:EMAIL@kaist.ac.kr">EMAIL@kaist.ac.kr</a></p>
       <p>291 Daehak-ro, Yuseong-gu,<br>Daejeon, Republic of Korea (34141)</p>
     </div>
     <div class="icons">
@@ -355,8 +374,8 @@
 
     <section id="education">
       <h2>Education</h2>
-      <div class="item"><div><span class="me">KAIST</span><br><span class="sub">M.S. in Electrical Engineering · SIIT Lab, advised by Junmo Kim</span></div><div class="when">2025 – present</div></div>
-      <div class="item"><div><span class="me">KAIST</span><br><span class="sub">B.S. in Electrical Engineering, minor in Cultural Technology</span></div><div class="when">2020 – 2025</div></div>
+      <div class="item"><div><span class="me">KAIST</span><br><span class="sub">M.S. in Electrical Engineering · SIIT Lab, advised by Junmo Kim</span></div><div class="when">2024 – present</div></div>
+      <div class="item"><div><span class="me">KAIST</span><br><span class="sub">B.S. in Electrical Engineering, minor in Cultural Technology</span></div><div class="when">2020 – 2024</div></div>
     </section>
 
     <section id="patent">
@@ -372,6 +391,105 @@
   </div>
 </div>
 <script>
+  // ---- alien abduction ----
+  (function () {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const scene = document.querySelector('.scene');
+    const cows = [...document.querySelectorAll('.cow')];
+    const storm = document.createElement('div'); storm.className = 'storm'; scene.appendChild(storm);
+    const flash = document.createElement('div'); flash.className = 'flash'; scene.appendChild(flash);
+    const BOLT = `<svg viewBox="0 0 60 160"><path d="M34,0 L8,74 L28,74 L14,160 L54,60 L32,60 L46,0 Z" fill="#fff8d6" stroke="#dfeaff" stroke-width="2" stroke-linejoin="round"/></svg>`;
+    function lightning(x) {
+      const b = document.createElement('div'); b.className = 'bolt'; b.innerHTML = BOLT;
+      b.style.left = (x - 45 + (Math.random() * 160 - 80)) + 'px'; b.style.top = (-10 + Math.random() * 40) + 'px';
+      b.style.transform = `rotate(${Math.random() * 24 - 12}deg) scale(${1.2 + Math.random() * .8})`;
+      scene.appendChild(b);
+      b.animate([{ opacity: 0 }, { opacity: 1, offset: .1 }, { opacity: .2, offset: .25 }, { opacity: 1, offset: .35 }, { opacity: 0 }],
+                { duration: 380, fill: 'forwards' }).onfinish = () => b.remove();
+      flash.animate([{ opacity: 0 }, { opacity: .75, offset: .1 }, { opacity: .1, offset: .3 }, { opacity: .5, offset: .4 }, { opacity: 0 }],
+                    { duration: 420 });
+      document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
+    }
+    let busy = false;
+    const UFO = `<svg viewBox="0 0 140 70" width="140" height="70">
+      <g class="disc">
+        <ellipse cx="70" cy="28" rx="26" ry="18" fill="#cfe9ff" opacity=".9"/>
+        <ellipse cx="62" cy="22" rx="8" ry="5" fill="#fff" opacity=".8"/>
+        <ellipse cx="70" cy="42" rx="62" ry="14" fill="#8e97a3"/>
+        <ellipse cx="70" cy="38" rx="58" ry="10" fill="#c2c9d2"/>
+        <ellipse cx="70" cy="34" rx="40" ry="5" fill="#e6ebf0" opacity=".7"/>
+        <g class="lights"><circle cx="30" cy="47" r="3.5"/><circle cx="70" cy="52" r="3.5"/><circle cx="110" cy="47" r="3.5"/></g>
+      </g></svg>`;
+    function visibleCows() {
+      const w = document.querySelector('.wrap').getBoundingClientRect();
+      return cows.filter(c => {
+        const r = c.getBoundingClientRect(); const cx = r.left + r.width / 2;
+        const inGutter = cx < w.left - 40 || cx > w.right + 40;          // not behind the content cards
+        const onScreen = r.left > 60 && r.right < innerWidth - 60;
+        return inGutter && onScreen;
+      });
+    }
+    function abduct(tries = 0) {
+      if (busy || document.hidden) return;
+      const pool = visibleCows();
+      if (!pool.length) { if (tries < 30) setTimeout(() => abduct(tries + 1), 2000); return; }
+      busy = true;
+      const cow = pool[Math.floor(Math.random() * pool.length)];
+      const r = cow.getBoundingClientRect();
+      // freeze cow where it is
+      cow.style.left = r.left + 'px'; cow.style.animation = 'none';
+      const cx = r.left + r.width / 2;
+      const ufo = document.createElement('div'); ufo.className = 'ufo'; ufo.innerHTML = UFO;
+      const ufoTop = Math.max(90, r.top - Math.min(260, r.top * 0.6));
+      ufo.style.left = (cx - 70) + 'px'; ufo.style.top = ufoTop + 'px';
+      scene.appendChild(ufo);
+      const beam = document.createElement('div'); beam.className = 'beam';
+      const bw = Math.max(120, r.width * 1.6);
+      beam.style.left = (cx - bw / 2) + 'px'; beam.style.top = (ufoTop + 44) + 'px';
+      beam.style.width = bw + 'px'; beam.style.height = (r.bottom - ufoTop - 44) + 'px';
+      scene.appendChild(beam);
+      storm.classList.add('on');
+      setTimeout(() => lightning(cx + 120), 700);
+      const arrive = ufo.animate([
+        { transform: 'translate(-40vw,-40vh) rotate(-8deg)', opacity: 0 },
+        { transform: 'translate(6px,8px) rotate(3deg)', opacity: 1, offset: .85 },
+        { transform: 'translate(0,0) rotate(0)', opacity: 1 }
+      ], { duration: 1600, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+      arrive.onfinish = () => {
+        beam.classList.add('on');
+        setTimeout(() => {
+          const lift = r.top - (ufoTop + 30);
+          const up = cow.animate([
+            { transform: 'translateY(0) rotate(0) scale(1)', opacity: 1 },
+            { transform: `translateY(-${lift * .3}px) rotate(-12deg) scale(.95)`, opacity: 1, offset: .3 },
+            { transform: `translateY(-${lift}px) rotate(25deg) scale(.15)`, opacity: 0 }
+          ], { duration: 2400, easing: 'cubic-bezier(.4,0,.8,.2)', fill: 'forwards' });
+          up.onfinish = () => {
+            beam.classList.remove('on');
+            setTimeout(() => {
+              if (Math.random() < .5) lightning(cx - 160);
+              ufo.animate([
+                { transform: 'translate(0,0)' },
+                { transform: 'translate(-6px,4px)', offset: .15 },
+                { transform: 'translate(6px,-4px)', offset: .3 },
+                { transform: 'translate(120vw,-45vh) rotate(10deg)', opacity: 0 }
+              ], { duration: 1100, easing: 'cubic-bezier(.7,0,1,.4)', fill: 'forwards' }).onfinish = () => {
+                ufo.remove(); beam.remove(); storm.classList.remove('on');
+                setTimeout(() => {   // cow is returned, walks back in from the edge
+                  up.cancel(); cow.style.left = ''; cow.style.animation = 'none';
+                  void cow.offsetWidth; cow.style.animation = ''; cow.style.animationDelay = '0s';
+                  busy = false;
+                }, 2500);
+              };
+            }, 500);
+          };
+        }, 700);
+      };
+    }
+    function schedule() { setTimeout(() => { abduct(); schedule(); }, 35000 + Math.random() * 25000); }
+    setTimeout(abduct, 12000); schedule();
+  })();
+
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       const t = document.querySelector(a.getAttribute('href'));
