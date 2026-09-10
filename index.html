@@ -408,7 +408,7 @@
                 { duration: 380, fill: 'forwards' }).onfinish = () => b.remove();
       flash.animate([{ opacity: 0 }, { opacity: .75, offset: .1 }, { opacity: .1, offset: .3 }, { opacity: .5, offset: .4 }, { opacity: 0 }],
                     { duration: 420 });
-      document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
+      [scene, document.querySelector('.wrap')].forEach(el => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); });
     }
     let busy = false;
     const UFO = `<svg viewBox="0 0 140 70" width="140" height="70">
