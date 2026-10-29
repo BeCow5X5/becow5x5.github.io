@@ -1,0 +1,21 @@
+{
+  "_howto": "Sources for scripts/fetch_arsenal.py. Each entry needs a name, a category (press | fan | reporter) and either 'rss' (a feed URL) or 'google_news' (a search query). Add or remove entries freely; a broken source is skipped and logged, never fatal. Run `python scripts/fetch_arsenal.py --check` to see how many items each source returns.",
+  "max_items": 10,
+  "max_per_source": 2,
+  "sources": [
+    { "name": "BBC Sport",        "category": "press",    "rss": "https://feeds.bbci.co.uk/sport/football/teams/arsenal/rss.xml" },
+    { "name": "The Guardian",     "category": "press",    "rss": "https://www.theguardian.com/football/arsenal/rss" },
+    { "name": "Sky Sports",       "category": "press",    "rss": "https://www.skysports.com/rss/11670" },
+    { "name": "Evening Standard", "category": "press",    "rss": "https://www.standard.co.uk/sport/football/arsenal/rss" },
+    { "name": "The Independent",  "category": "press",    "rss": "https://www.independent.co.uk/topic/arsenal/rss" },
+    { "name": "football.london",  "category": "press",    "rss": "https://www.football.london/arsenal-fc/?service=rss" },
+
+    { "name": "Arseblog News",    "category": "fan",      "rss": "https://arseblog.news/feed/" },
+
+    { "name": "David Ornstein",   "category": "reporter", "google_news": "\"David Ornstein\" Arsenal" },
+    { "name": "James McNicholas", "category": "reporter", "google_news": "\"James McNicholas\" Arsenal" },
+    { "name": "Art de Roché",     "category": "reporter", "google_news": "\"Art de Roche\" Arsenal" },
+    { "name": "Charles Watts",    "category": "reporter", "google_news": "\"Charles Watts\" Arsenal" },
+    { "name": "Sami Mokbel",      "category": "reporter", "google_news": "\"Sami Mokbel\" Arsenal" }
+  ]
+}

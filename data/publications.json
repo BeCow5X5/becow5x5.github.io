@@ -1,0 +1,46 @@
+{
+  "_howto": "Newest first. Add a new paper by copying an entry. 'authors': append '*' for equal contribution; the name in 'me' is bolded automatically. 'image' is optional (put files in img/). 'links' is a list of {label, url}.",
+  "me": "Sungjae Choi",
+  "publications": [
+    {
+      "title": "VGGT-Bridge: Beyond Sequential Pose Graphs via Coarse-Stride Skip Edges",
+      "authors": ["Sungjae Choi*", "Hanna Bae*", "Sunghyun Baek", "Junmo Kim"],
+      "venue": "ACCV 2026",
+      "image": "img/vggt-bridge.jpg",
+      "links": [
+        { "label": "Paper", "url": "https://arxiv.org/abs/2610.06594" },
+        { "label": "Code", "url": "https://github.com/BeCow5X5/VGGT-Bridge" }
+      ]
+    },
+    {
+      "title": "PePESeg3D: Perception Prior Enhances Multi-Scale Segmentation for 3D Gaussian Splatting",
+      "authors": ["Sungjae Choi", "Seunghee Koh", "Junmo Kim"],
+      "venue": "BMVC 2026 · earlier version at CVPR 2026 Workshop on 3D Multi-View (3DMV)",
+      "image": "img/pepeseg3d.png",
+      "links": [
+        { "label": "Paper", "url": "https://arxiv.org/abs/2609.28645" },
+        { "label": "Code", "url": "https://github.com/BeCow5X5/PePESeg3D" }
+      ]
+    },
+    {
+      "title": "</think> Doesn't Stop Reasoning: Analysis of Spurious CoT Termination",
+      "authors": ["Seunghee Koh", "Sungjae Choi", "Minchan Kwon", "Sunghyun Baek", "Junmo Kim"],
+      "venue": "EMNLP 2026 (Main)",
+      "image": "img/eab.png",
+      "links": [
+        { "label": "Paper", "url": "https://arxiv.org/abs/2609.03633" },
+        { "label": "Code", "url": "https://github.com/Seunghee-Koh/Spurious-CoT-Termination" }
+      ]
+    },
+    {
+      "title": "Worki-Yo: AR-Driven Stretching in Office System for Workplace Health",
+      "authors": ["Kyunghwan Min", "Heejeong Ko", "Sungjae Choi", "Sangho Yoon"],
+      "venue": "HCI Korea 2025",
+      "image": "img/workiyo.png",
+      "links": [
+        { "label": "Paper", "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12131624" }
+      ]
+    }
+  ],
+  "under_review": "VistaGS (few-shot 3DGS with geometry foundation priors)."
+}

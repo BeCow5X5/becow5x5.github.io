@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arsenal News · Sungjae Choi</title>
+<meta name="description" content="Daily curated Arsenal FC news, updated automatically every morning.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #db0007;
+    --red-d: #9c0005;
+    --gold: #9c824a;
+    --ink: #1b1b1f;
+    --muted: #63636b;
+    --bg: #f6f4f1;
+    --card: #ffffff;
+    --rule: rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  header { background: linear-gradient(135deg, var(--red) 0%, var(--red-d) 100%); color: #fff; position: relative; overflow: hidden; }
+  header::after { content: ""; position: absolute; inset: auto 0 0 0; height: 8px; background: repeating-linear-gradient(90deg, #fff 0 40px, var(--red) 40px 80px); opacity: .9; }
+  header .inner { width: min(1180px, 92vw); margin: 0 auto; padding: 22px 0 48px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; font-size: .92rem; }
+  .topbar a { opacity: .9; } .topbar a:hover { opacity: 1; text-decoration: underline; }
+  h1 { font-family: "Oswald", Impact, sans-serif; font-weight: 700; font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: .02em; text-transform: uppercase; margin: 36px 0 4px; line-height: 1; }
+  .tagline { margin: 0; opacity: .9; }
+  .updated { display: inline-block; margin-top: 16px; padding: 4px 12px; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; font-size: .85rem; }
+
+  main { width: min(1180px, 92vw); margin: 0 auto; padding: 36px 0 64px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .news-card { background: var(--card); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; border-top: 5px solid var(--red);
+               box-shadow: 0 6px 20px rgba(0,0,0,.06); transition: transform .18s ease, box-shadow .18s ease; }
+  .news-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(219,0,7,.16); }
+  .news-card .thumb { aspect-ratio: 16/9; background: linear-gradient(135deg, var(--red), var(--red-d)); position: relative; }
+  .news-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .news-card .thumb .placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-family: "Oswald", sans-serif; font-size: 1.4rem; letter-spacing: .1em; }
+  .news-card .body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .meta { display: flex; gap: 8px; align-items: center; font-size: .8rem; color: var(--muted); }
+  .source { background: var(--red); color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 600; letter-spacing: .02em; }
+  .news-card h2 { font-size: 1.08rem; font-weight: 600; line-height: 1.35; margin: 0; }
+  .news-card:hover h2 { color: var(--red); }
+  .news-card p { margin: 0; color: var(--muted); font-size: .92rem; }
+  .byline { font-size: .82rem; font-weight: 600; color: var(--gold); }
+  .news-card .thumb .placeholder > span { text-align: center; }
+  .news-card .thumb .placeholder small { display: block; font-family: "IBM Plex Sans", sans-serif; font-size: .8rem; letter-spacing: .04em; opacity: .85; text-align: center; margin-top: 4px; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+  .filters button { font: inherit; font-size: .9rem; font-weight: 500; padding: 6px 16px; border-radius: 999px; cursor: pointer;
+                    border: 1.5px solid var(--red); background: #fff; color: var(--red); }
+  .filters button[aria-pressed="true"] { background: var(--red); color: #fff; }
+  .filters button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  .news-card.lead { grid-column: 1 / -1; flex-direction: row; }
+  .news-card.lead .thumb { flex: 0 0 58%; aspect-ratio: auto; min-height: 320px; }
+  .news-card.lead .body { padding: 28px 30px; justify-content: center; }
+  .news-card.lead h2 { font-size: 1.6rem; }
+  .news-card.lead p { font-size: 1rem; }
+
+  .empty { background: var(--card); border-radius: 14px; padding: 48px 24px; text-align: center; color: var(--muted); border-top: 5px solid var(--red); }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 0 0 40px; }
+
+  @media (max-width: 760px) {
+    .news-card.lead { flex-direction: column; }
+    .news-card.lead .thumb { flex: none; aspect-ratio: 16/9; min-height: 0; }
+    .news-card.lead .body { padding: 16px 18px 18px; }
+    .news-card.lead h2 { font-size: 1.25rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .news-card { transition: none; } .news-card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <div class="topbar">
+      <a href="index.html">← Sungjae Choi</a>
+      <span>Victoria Concordia Crescit</span>
+    </div>
+    <h1>Arsenal News</h1>
+    <p class="tagline">The latest from the Emirates, curated automatically every morning.</p>
+    <span class="updated" id="updated">Loading…</span>
+  </div>
+</header>
+
+<main>
+  <div class="filters" id="filters" role="group" aria-label="Filter by source type" hidden></div>
+  <div class="grid" id="news"></div>
+</main>
+
+<footer>Headlines and images belong to their publishers; each card links to the original article.</footer>
+
+<script>
+  (function () {
+    const grid = document.getElementById('news');
+    const updated = document.getElementById('updated');
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmt = iso => iso ? new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+
+    const filters = document.getElementById('filters');
+    const LABELS = { all: 'All', press: 'Press', reporter: 'Reporters', fan: 'Fan media' };
+    let items = [];
+
+    function card(it, i) {
+      const img = it.image
+        ? `<img src="${esc(it.image)}" alt="" loading="${i < 3 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer" onerror="this.remove()">`
+        : '';
+      const placeholder = it.reporter ? `AFC<small>${esc(it.reporter)}</small>` : 'AFC';
+      return `
+        <a class="news-card${i === 0 ? ' lead' : ''}" href="${esc(it.url)}" target="_blank" rel="noopener">
+          <div class="thumb"><span class="placeholder"><span>${placeholder}</span></span>${img}</div>
+          <div class="body">
+            <div class="meta"><span class="source">${esc(it.source)}</span><span>${fmt(it.published)}</span></div>
+            <h2>${esc(it.title)}</h2>
+            ${it.reporter ? `<span class="byline">✍ ${esc(it.reporter)}</span>` : ''}
+            ${it.summary ? `<p>${esc(it.summary)}</p>` : ''}
+          </div>
+        </a>`;
+    }
+
+    function render(cat) {
+      const shown = cat === 'all' ? items : items.filter(it => it.category === cat);
+      grid.innerHTML = shown.map(card).join('');
+      filters.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cat === cat));
+    }
+
+    fetch('data/arsenal.json', { cache: 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => {
+        updated.textContent = data.updated ? 'Updated ' + new Date(data.updated).toLocaleString() : 'Not updated yet';
+        items = data.items || [];
+        if (!items.length) {
+          grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No news yet. The first update arrives with the next morning run.</div>';
+          return;
+        }
+        const cats = ['all', ...Object.keys(LABELS).filter(c => c !== 'all' && items.some(it => it.category === c))];
+        if (cats.length > 2) {
+          filters.innerHTML = cats.map(c => `<button type="button" data-cat="${c}">${LABELS[c]}</button>`).join('');
+          filters.addEventListener('click', e => { const b = e.target.closest('button'); if (b) render(b.dataset.cat); });
+          filters.hidden = false;
+        }
+        render('all');
+      })
+      .catch(() => {
+        updated.textContent = 'Unavailable';
+        grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load the news feed.</div>';
+      });
+  })();
+</script>
+</body>
+</html>
